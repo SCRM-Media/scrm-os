@@ -13,26 +13,27 @@ export async function GET(request: Request) {
     const { error, data } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
-      // Use service role to bypass RLS when creating the profile
       const service = createServiceClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
       )
 
-      const { data: existing } = await service
+      // Upsert profile — handles both new users and re-logins
+      const { error: upsertError } = await service
         .from('user_profiles')
-        .select('id')
-        .eq('id', data.user.id)
-        .single()
+        .upsert(
+          {
+            id: data.user.id,
+            email: data.user.email!,
+            display_name:
+              (data.user.user_metadata?.full_name as string) ?? data.user.email!,
+            role: 'viewer',
+          },
+          { onConflict: 'id', ignoreDuplicates: true }
+        )
 
-      if (!existing) {
-        await service.from('user_profiles').insert({
-          id: data.user.id,
-          email: data.user.email!,
-          display_name:
-            (data.user.user_metadata?.full_name as string) ?? data.user.email!,
-          role: 'viewer',
-        })
+      if (upsertError) {
+        console.error('[callback] profile upsert error:', upsertError)
       }
 
       return NextResponse.redirect(`${origin}${next}`)
