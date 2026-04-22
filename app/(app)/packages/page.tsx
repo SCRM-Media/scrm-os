@@ -1,8 +1,11 @@
-export default function PackagesPage() {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Packages</h1>
-      <p className="text-muted-foreground mt-1">Building...</p>
-    </div>
-  )
+import { getPackagesWithBlocks, getInventoryPackages } from '@/lib/queries/packages'
+import PackagesClient from './packages-client'
+
+export default async function PackagesPage() {
+  const [packages, inventoryPackages] = await Promise.all([
+    getPackagesWithBlocks(),
+    getInventoryPackages(),
+  ])
+
+  return <PackagesClient packages={packages} inventoryPackages={inventoryPackages} />
 }

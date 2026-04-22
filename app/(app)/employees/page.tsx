@@ -1,8 +1,21 @@
-export default function EmployeesPage() {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Employees</h1>
-      <p className="text-muted-foreground mt-1">Building...</p>
-    </div>
-  )
+import { getEmployees } from '@/lib/queries/employees'
+import { createClient } from '@/lib/supabase/server'
+import EmployeesClient from './employees-client'
+
+export default async function EmployeesPage() {
+  const [employees, supabase] = await Promise.all([
+    getEmployees(),
+    createClient(),
+  ])
+
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('role')
+    .eq('id', user!.id)
+    .single()
+
+  const canEdit = profile?.role === 'admin' || profile?.role === 'manager'
+
+  return <EmployeesClient employees={employees} canEdit={canEdit} />
 }

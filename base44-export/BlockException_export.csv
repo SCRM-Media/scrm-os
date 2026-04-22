@@ -1,0 +1,3 @@
+block_rule,note,block_type,original_date,new_start_time,new_employee,client,new_date,is_cancelled,id,created_date,updated_date,created_by_id,created_by,is_sample
+"69dc59c2a44c50007c9327ac","","Social Media Filming Block","2026-04-13","","69d71f573d8a40c016bdf49d","69d3590666100092a3240274","","false","69dc7855d9093ecdc1543f65","2026-04-13T05:00:05.780000","2026-04-13T05:00:05.780000","anonymous","anonymous","false"
+"69d98d8a34b5054d20e4638d","","Social Media Editing Block","2026-04-07","09:00","","69d3590666100092a3240274","2026-04-07","false","69db2923fb82364d2f856141","2026-04-12T05:09:55.903000","2026-04-12T05:11:02.772000","69d249c31a12de880bb452f5","giulianoc@scrmmedia.com.au","false"
