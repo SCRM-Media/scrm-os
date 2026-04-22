@@ -607,10 +607,15 @@ create policy "Admins can manage all profiles"
   using (is_admin());
 
 -- Auto-create user_profile on signup
-create or replace function handle_new_user()
-returns trigger as $$
+-- security definer set search_path = public is required because
+-- the trigger fires in the auth schema context
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
 begin
-  insert into user_profiles (id, email, display_name, role)
+  insert into public.user_profiles (id, email, display_name, role)
   values (
     new.id,
     new.email,
@@ -619,11 +624,13 @@ begin
   );
   return new;
 end;
-$$ language plpgsql security definer;
+$$;
+
+grant execute on function public.handle_new_user() to supabase_auth_admin;
 
 create trigger on_auth_user_created
   after insert on auth.users
-  for each row execute function handle_new_user();
+  for each row execute function public.handle_new_user();
 
 -- -------
 -- employees policies
